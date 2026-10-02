@@ -19,13 +19,10 @@ const doc = {
     version: "1.0.0",
   },
   // Automatically detects if running on Render or locally.
-  host:
-    process.env.NODE_ENV === "production"
-      ? "artcatalog-david.onrender.com"
-      : `localhost:${process.env.PORT || 3000}`,
+  host: "artcatalog-david.onrender.com",
   basePath: "/api",
-  // Uses secure HTTPS on Render, standard HTTP locally.
-  schemes: process.env.NODE_ENV === "production" ? ["https"] : ["http"],
+  // Use HTTPS since it is deployed on Render
+  schemes: ["https"],
 };
 
 // Endpoints that are NOT meant for API consumers: the Swagger UI itself, the

@@ -5,10 +5,10 @@
     "description": "CSE 341 Final Project - Art Catalog REST API",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "artcatalog-david.onrender.com",
   "basePath": "/api",
   "schemes": [
-    "http"
+    "https"
   ],
   "paths": {
     "/auth/logout": {
