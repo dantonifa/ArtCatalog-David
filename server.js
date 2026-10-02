@@ -79,7 +79,17 @@ if (process.env.NODE_ENV !== "test" && process.env.SESSION_SECRET) {
 }
 
 // ---- Swagger API Documentation ----
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerOptions = {
+  swaggerOptions: {
+    withCredentials: true,
+  },
+};
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, swaggerOptions),
+);
 
 // ---- Routes ----
 app.use("/", routes);
