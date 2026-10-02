@@ -4,39 +4,45 @@
 // cleanup pass (see cleanDoc) because swagger-autogen does not generate
 // everything correctly out of the box.
 
-require('dotenv').config();
+require("dotenv").config();
 
-const fs = require('fs');
-// writeOutputFile:false -> we write the file ourselves after the cleanup.
-const swaggerAutogen = require('swagger-autogen')({ writeOutputFile: false });
+const fs = require("fs");
+
+// writeOutputFile:false -> we write the file ourselves after generation.
+const swaggerAutogen = require("swagger-autogen")({ writeOutputFile: false });
 
 // API-level metadata used in the generated documentation.
 const doc = {
   info: {
-    title: 'ArtCatalog API',
-    description: 'CSE 341 Final Project - Art Catalog REST API',
-    version: '1.0.0',
+    title: "ArtCatalog API",
+    description: "CSE 341 Final Project - Art Catalog REST API",
+    version: "1.0.0",
   },
-  host: `localhost:${process.env.PORT || 3000}`,
-  basePath: '/api',
-  schemes: ['http'],
+  // Automatically detects if running on Render or locally.
+  host:
+    process.env.NODE_ENV === "production"
+      ? "artcatalog-david.onrender.com"
+      : `localhost:${process.env.PORT || 3000}`,
+  basePath: "/api",
+  // Uses secure HTTPS on Render, standard HTTP locally.
+  schemes: process.env.NODE_ENV === "production" ? ["https"] : ["http"],
 };
 
 // Endpoints that are NOT meant for API consumers: the Swagger UI itself, the
 // welcome message, the browser-only GitHub OAuth redirect flow, and the
 // development-only dev-login helper.
 const REMOVE_PATHS = [
-  '/api-docs/',
-  '/',
-  '/api/auth/github',
-  '/api/auth/github/callback',
-  '/api/auth/login/failed',
-  '/api/auth/dev-login',
+  "/api-docs/",
+  "/",
+  "/api/auth/github",
+  "/api/auth/github/callback",
+  "/api/auth/login/failed",
+  "/api/auth/dev-login",
 ];
 
 // Where to write the document and which route modules to scan.
-const outputFile = './swagger.json';
-const endpointsFiles = ['./routes/index.js'];
+const outputFile = "./swagger.json";
+const endpointsFiles = ["./routes/index.js"];
 
 /**
  * Applies small fixes to the auto-generated document:
@@ -56,34 +62,35 @@ function cleanDoc(swaggerDoc) {
       continue;
     }
     // "/api/artists/" -> "/artists/" (basePath already is "/api").
-    if (key.startsWith('/api/')) {
+    if (key.startsWith("/api/")) {
       paths[key.slice(4)] = paths[key];
       delete paths[key];
     }
   }
 
   // year is sent as a number by the API (the controller does Number(req.query.year)).
-  const artworksGet = paths['/artworks/'] && paths['/artworks/'].get;
+  const artworksGet = paths["/artworks/"] && paths["/artworks/"].get;
   if (artworksGet) {
-    const yearParam = artworksGet.parameters.find((p) => p.name === 'year');
+    const yearParam = artworksGet.parameters.find((p) => p.name === "year");
     if (yearParam) {
-      yearParam.type = 'integer';
+      yearParam.type = "integer";
     }
   }
 
   // A PUT that moves a link onto an already-linked pair is rejected with 409.
-  const linkPut = paths['/artworkKeywords/{id}'] && paths['/artworkKeywords/{id}'].put;
-  if (linkPut && !linkPut.responses['409']) {
-    linkPut.responses['409'] = { description: 'Conflict' };
+  const linkPut =
+    paths["/artworkKeywords/{id}"] && paths["/artworkKeywords/{id}"].put;
+  if (linkPut && !linkPut.responses["409"]) {
+    linkPut.responses["409"] = { description: "Conflict" };
   }
 }
 
 swaggerAutogen(outputFile, endpointsFiles, doc).then((result) => {
   if (!result.success) {
-    console.error('swagger.json generation failed');
+    console.error("swagger.json generation failed");
     process.exit(1);
   }
   cleanDoc(result.data);
-  fs.writeFileSync(outputFile, JSON.stringify(result.data, null, 2) + '\n');
-  console.log('swagger.json generated');
+  fs.writeFileSync(outputFile, JSON.stringify(result.data, null, 2) + "\n");
+  console.log("swagger.json generated");
 });

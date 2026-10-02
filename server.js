@@ -3,23 +3,27 @@
 // sessions, passport), wires up the route modules, and starts the HTTP
 // server after connecting to MongoDB.
 
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const sanitize = require('express-mongo-sanitize');
-const rateLimit = require('express-rate-limit');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const passport = require('passport');
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const sanitize = require("express-mongo-sanitize");
+const rateLimit = require("express-rate-limit");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const passport = require("passport");
 
-const { initDb } = require('./data/database');
-const { notFound, errorHandler } = require('./middleware/errorHandler');
-const routes = require('./routes');
+// ---- Swagger UI Dependencies ----
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json"); // Changed to match your script's output
+
+const { initDb } = require("./data/database");
+const { notFound, errorHandler } = require("./middleware/errorHandler");
+const routes = require("./routes");
 
 // Registers the GitHub OAuth strategy and user (de)serialization.
-require('./config/passport');
+require("./config/passport");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,19 +35,19 @@ app.use(helmet());
 app.use(cors());
 // JSON body parser.
 app.use(express.json());
-// Strips Mongo operator characters ($ and .) from input to prevent injection.
+// Strips Mongo operator characters (\$ and .) from input to prevent injection.
 app.use(sanitize());
 // Rate limiting: max 100 requests per 15 minutes per IP.
-app.use(
+/*app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
-    message: { message: 'Too many requests, please try again later.' },
-  })
-);
+    message: { message: "Too many requests, please try again later." },
+  }),
+);*/
 
 // ---- Sessions and passport (disabled while running tests) ----
-if (process.env.NODE_ENV !== 'test' && process.env.SESSION_SECRET) {
+if (process.env.NODE_ENV !== "test" && process.env.SESSION_SECRET) {
   // Persist sessions in MongoDB via connect-mongo.
   app.use(
     session({
@@ -51,16 +55,19 @@ if (process.env.NODE_ENV !== 'test' && process.env.SESSION_SECRET) {
       resave: false,
       saveUninitialized: false,
       store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-      cookie: { httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 1000 },
-    })
+      cookie: { httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 1000 },
+    }),
   );
   // Restore the logged-in user into req.user on each request.
   app.use(passport.initialize());
   app.use(passport.session());
 }
 
+// ---- Swagger API Documentation ----
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // ---- Routes ----
-app.use('/', routes);
+app.use("/", routes);
 
 // ---- Central error handling (must be mounted last) ----
 app.use(notFound);
@@ -78,7 +85,7 @@ async function startServer() {
       console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
     });
   } catch (err) {
-    console.error('Failed to initialize the database:', err);
+    console.error("Failed to initialize the database:", err);
     process.exit(1);
   }
 }

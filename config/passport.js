@@ -3,15 +3,15 @@
 // restored from the session, and registers the GitHub strategy that creates
 // (or finds) the user document in the "users" collection.
 
-const passport = require('passport');
-const GitHubStrategy = require('passport-github2').Strategy;
-const { ObjectId } = require('mongodb');
-const { getDatabase } = require('../data/database');
+const passport = require("passport");
+const GitHubStrategy = require("passport-github2").Strategy;
+const { ObjectId } = require("mongodb");
+const { getDatabase } = require("../data/database");
 
 // GitHub ids listed in ADMIN_GITHUB_IDS (comma-separated) get role "admin"
 // on their first login; every other user keeps role "user" by default.
-const adminGithubIds = (process.env.ADMIN_GITHUB_IDS || '')
-  .split(',')
+const adminGithubIds = (process.env.ADMIN_GITHUB_IDS || "")
+  .split(",")
   .map((id) => id.trim())
   .filter(Boolean);
 
@@ -24,10 +24,13 @@ passport.serializeUser((user, done) => {
 // saved in the session.
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await getDatabase().collection('users').findOne({ _id: new ObjectId(id) });
+    const user = await getDatabase()
+      .collection("users")
+      .findOne({ _id: new ObjectId(id) });
     done(null, user);
   } catch (err) {
-    done(err, null);
+    console.error("Passport error in deserializeUser:", err);
+    return done(err, null);
   }
 });
 
@@ -50,27 +53,33 @@ if (
           const db = getDatabase();
           const oauthId = String(profile.id);
           let user = await db
-            .collection('users')
-            .findOne({ oauthProvider: 'github', oauthId });
+            .collection("users")
+            .findOne({ oauthProvider: "github", oauthId });
 
           if (!user) {
             // First-time sign in: build the user document from the GitHub profile.
             const newUser = {
-              oauthProvider: 'github',
+              oauthProvider: "github",
               oauthId,
               displayName: profile.displayName || profile.username,
-              email: profile.emails && profile.emails[0] ? profile.emails[0].value : null,
-              role: adminGithubIds.includes(oauthId) ? 'admin' : 'user',
+              email:
+                profile.emails && profile.emails[0]
+                  ? profile.emails[0].value
+                  : null,
+              role: adminGithubIds.includes(oauthId) ? "admin" : "user",
               createdAt: new Date(),
               lastLoginAt: new Date(),
             };
-            const result = await db.collection('users').insertOne(newUser);
+            const result = await db.collection("users").insertOne(newUser);
             user = { _id: result.insertedId, ...newUser };
           } else {
             // Existing user: just refresh the last login timestamp.
             await db
-              .collection('users')
-              .updateOne({ _id: user._id }, { $set: { lastLoginAt: new Date() } });
+              .collection("users")
+              .updateOne(
+                { _id: user._id },
+                { $set: { lastLoginAt: new Date() } },
+              );
             user.lastLoginAt = new Date();
           }
 
@@ -78,8 +87,8 @@ if (
         } catch (err) {
           return done(err, null);
         }
-      }
-    )
+      },
+    ),
   );
 }
 
