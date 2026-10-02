@@ -3,32 +3,29 @@
 // current user ("who am I"), and a development-only login helper.
 // req.user is populated by passport-session.
 
-const { getDatabase } = require('../data/database');
+const { getDatabase } = require("../data/database");
 
 /** Called after a successful GitHub OAuth, returns the logged-in user. */
 function authSuccess(req, res) {
-  res.status(200).json({ message: 'Authentication successful', user: req.user });
+  res
+    .status(200)
+    .json({ message: "Authentication successful", user: req.user });
 }
 
 /** Called when GitHub OAuth fails. */
 function authFailure(req, res) {
-  res.status(401).json({ message: 'Authentication failed' });
+  res.status(401).json({ message: "Authentication failed" });
 }
 
-/** Ends the session and clears the session cookie. */
+/** Ends the session and clears the login state. */
 function logout(req, res, next) {
   // passport removes the user from the session.
   req.logout((err) => {
     if (err) {
       return next(err);
     }
-    req.session.destroy((destroyErr) => {
-      if (destroyErr) {
-        return next(destroyErr);
-      }
-      res.clearCookie('connect.sid');
-      res.status(200).json({ message: 'Logged out successfully' });
-    });
+    // Sends a clean JSON response so Swagger does not throw an error
+    res.status(200).json({ message: "Successfully logged out" });
   });
 }
 
@@ -42,23 +39,23 @@ function logout(req, res, next) {
 async function devLogin(req, res, next) {
   try {
     const db = getDatabase();
-    const marker = { oauthProvider: 'dev', oauthId: 'dev-admin' };
-    let user = await db.collection('users').findOne(marker);
+    const marker = { oauthProvider: "dev", oauthId: "dev-admin" };
+    let user = await db.collection("users").findOne(marker);
     if (!user) {
       const newUser = {
         ...marker,
-        displayName: 'Dev Admin',
+        displayName: "Dev Admin",
         email: null,
-        role: 'admin',
+        role: "admin",
         createdAt: new Date(),
         lastLoginAt: new Date(),
       };
-      const result = await db.collection('users').insertOne(newUser);
+      const result = await db.collection("users").insertOne(newUser);
       user = { _id: result.insertedId, ...newUser };
     }
     req.login(user, (err) => {
       if (err) return next(err);
-      res.status(200).json({ message: 'Dev login successful', user });
+      res.status(200).json({ message: "Dev login successful", user });
     });
   } catch (err) {
     next(err);
