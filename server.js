@@ -16,7 +16,7 @@ const passport = require("passport");
 
 // ---- Swagger UI Dependencies ----
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger.json"); // Changed to match your script's output
+const swaggerDocument = require("./swagger.json");
 
 const { initDb } = require("./data/database");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
@@ -31,12 +31,21 @@ const PORT = process.env.PORT || 3000;
 // ---- Security and request parsing middleware ----
 // helmet: sets secure HTTP headers.
 app.use(helmet());
-// cors: allows cross-origin requests.
-app.use(cors());
+
+// cors: allows secure cross-origin requests matching production domains with active credentials.
+app.use(
+  cors({
+    origin: ["https://onrender.com", "http://localhost:3000"],
+    credentials: true,
+  }),
+);
+
 // JSON body parser.
 app.use(express.json());
+
 // Strips Mongo operator characters (\$ and .) from input to prevent injection.
 app.use(sanitize());
+
 // Rate limiting: max 100 requests per 15 minutes per IP.
 /*app.use(
   rateLimit({
@@ -55,7 +64,13 @@ if (process.env.NODE_ENV !== "test" && process.env.SESSION_SECRET) {
       resave: false,
       saveUninitialized: false,
       store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-      cookie: { httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 1000 },
+      cookie: {
+        httpOnly: true,
+        // Production requires "none" and secure tracking for Cross-Origin cookies to work inside Swagger UI.
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 1000,
+      },
     }),
   );
   // Restore the logged-in user into req.user on each request.
