@@ -10,6 +10,14 @@
   "schemes": [
     "https"
   ],
+  "securityDefinitions": {
+    "CookieAuth": {
+      "type": "apiKey",
+      "in": "cookie",
+      "name": "connect.sid",
+      "description": "Session cookie authentication for authorized routes"
+    }
+  },
   "paths": {
     "/auth/logout": {
       "get": {
@@ -821,5 +829,10 @@
         }
       }
     }
-  }
+  },
+  "security": [
+    {
+      "CookieAuth": []
+    }
+  ]
 }

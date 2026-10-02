@@ -28,14 +28,28 @@ require("./config/passport");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---- Proxy Configuration (REQUIRED FOR RENDER DEPLOYMENTS) ----
+// Tells Express to trust Render's reverse proxy so secure cookies work properly.
+app.set("trust proxy", 1);
+
 // ---- Security and request parsing middleware ----
-// helmet: sets secure HTTP headers.
-app.use(helmet());
+// helmet: sets secure HTTP headers (adjusted to let Swagger UI run inline scripts).
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+      },
+    },
+  }),
+);
 
 // cors: allows secure cross-origin requests matching production domains with active credentials.
 app.use(
   cors({
-    // Replace with your explicit subdomain url
     origin: ["https://artcatalog-david.onrender.com", "http://localhost:3000"],
     credentials: true,
   }),

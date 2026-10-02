@@ -23,6 +23,21 @@ const doc = {
   basePath: "/api",
   // Use HTTPS since it is deployed on Render
   schemes: ["https"],
+  // FIX: Force Swagger UI to include credentials and look for the session cookie
+  securityDefinitions: {
+    CookieAuth: {
+      type: "apiKey",
+      in: "cookie",
+      name: "connect.sid",
+      description: "Session cookie authentication for authorized routes",
+    },
+  },
+  // Apply cookie authorization globally across all endpoints in the documentation
+  security: [
+    {
+      CookieAuth: [],
+    },
+  ],
 };
 
 // Endpoints that are NOT meant for API consumers: the Swagger UI itself, the
