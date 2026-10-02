@@ -35,7 +35,8 @@ app.use(helmet());
 // cors: allows secure cross-origin requests matching production domains with active credentials.
 app.use(
   cors({
-    origin: ["https://onrender.com", "http://localhost:3000"],
+    // Replace with your explicit subdomain url
+    origin: ["https://artcatalog-david.onrender.com", "http://localhost:3000"],
     credentials: true,
   }),
 );
