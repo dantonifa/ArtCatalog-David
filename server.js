@@ -1,7 +1,6 @@
-// Main application entry point.
+// server.js - Main entry point for the ArtCatalog application
 require("dotenv").config();
-
-const express = require("express"); //  FIXED: Erased initialization check loop reference
+const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const sanitize = require("express-mongo-sanitize");
@@ -12,7 +11,6 @@ const passport = require("passport");
 const bodyParser = require("body-parser");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json"); // Loads your compiled OpenAPI 3.0 specification file
-
 const { initDb } = require("./data/database");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
@@ -23,11 +21,15 @@ require("./config/passport");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---- Proxy Configuration ----
+// Instructs Express and Passport to trust header states routed via proxies (Required for hosting on Render)
+app.set("trust proxy", 1);
+
 app.use(bodyParser.json());
 
 // ---- Security and request parsing middleware ----
 app.use(helmet());
-app.use(cors());
+app.use(cors()); // Kept the unified CORS middleware configuration
 app.use(express.json());
 app.use(sanitize());
 app.use(
@@ -41,7 +43,6 @@ app.use(
 // ---- Sessions and passport ----
 if (process.env.NODE_ENV !== "test" && process.env.SESSION_SECRET) {
   const isProduction = process.env.NODE_ENV === "production";
-
   app.use(
     session({
       secret: process.env.SESSION_SECRET,
@@ -60,7 +61,7 @@ if (process.env.NODE_ENV !== "test" && process.env.SESSION_SECRET) {
   app.use(passport.session());
 }
 
-/* 
+/*
 // ---- Development Security Bypass ----
 // COMMENTED OUT FOR DYNAMIC ROLE SELECTION DISCOVERY TESTING:
 // Un-comment this block ONLY if you need to force-bypass the login buttons entirely during debugging.
@@ -76,22 +77,6 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 */
-
-// --- CORS headers ---
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Z-Key, Authorization",
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-  );
-  next();
-});
-app.use(cors({ methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"] }));
-app.use(cors({ origin: "*" }));
 
 // ---- Swagger UI Native OpenAPI 3.0 Authorization UI Setup ----
 const swaggerUiOptions = {
@@ -115,16 +100,31 @@ const swaggerUiOptions = {
   `,
 };
 
+// ---- Dynamic Public User Pipeline Initialization ----
+// Intercepts direct entries to ensure unauthenticated consumers receive a standard read-only footprint.
+const initPublicSessionContext = (req, res, next) => {
+  if (!req.user) {
+    req.user = {
+      githubId: null,
+      displayName: "Anonymous Guest",
+      role: "user",
+    };
+  }
+  next();
+};
+
 // Mount the documentation engine interface with the custom behavioral parameters handler
 app.use(
   "/api-docs",
+  initPublicSessionContext,
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, swaggerUiOptions),
 );
 
 // --- 1. MOUNT ROOT PORTAL VIEW FIRST (Evaluated before general collection API paths) ---
 app.get("/", (req, res) => {
-  if (req.user) {
+  // Check if user is logged in via real OAuth session AND is an actual admin
+  if (req.user && req.user.githubId) {
     // User is logged in: Display current profile matrix details, documentation link, and logout button
     const name = req.user.displayName || req.user.username || "User";
     res.send(`
@@ -137,12 +137,10 @@ app.get("/", (req, res) => {
           </span>
         </p>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;"/>
-        
         <a href="/api-docs" style="display: inline-block; width: 80%; padding: 12px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,123,255,0.2);">
           Open Swagger API Workspace
         </a>
         <br/>
-        
         <a href="/api/auth/logout" style="display: inline-block; padding: 8px 16px; background: #f0ad4e; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500;">
           Log Out / Clear Session Context
         </a>
@@ -153,9 +151,8 @@ app.get("/", (req, res) => {
     res.send(`
       <div style="font-family: sans-serif; text-align: center; padding: 50px 20px; max-width: 800px; margin: 0 auto;">
         <h1 style="color: #222; font-size: 2.5em; margin-bottom: 10px;">🎨 Public ArtCatalog Engine Workspace</h1>
-        <p style="color: #666; font-size: 1.1em;">Select your intended authorization profile path to initiate the GitHub OAuth2 authentication loop:</p>
+        <p style="color: #666; font-size: 1.1em;">Select your intended authorization profile path:</p>
         <br/><br/>
-        
         <div style="display: inline-block; width: 300px; margin: 15px; padding: 25px; border: 2px solid #eaeaea; border-radius: 12px; text-align: center; vertical-align: top; background: #fff; transition: transform 0.2s;">
           <h3 style="color: #d9534f; margin-top: 0;">Administrative Profile</h3>
           <p style="color: #777; font-size: 14px; min-height: 40px;">Grants full read/write operational access. Required to execute POST, PUT, and DELETE CRUD tasks.</p>
@@ -163,12 +160,11 @@ app.get("/", (req, res) => {
             Login as Admin
           </a>
         </div>
-        
         <div style="display: inline-block; width: 300px; margin: 15px; padding: 25px; border: 2px solid #eaeaea; border-radius: 12px; text-align: center; vertical-align: top; background: #fff; transition: transform 0.2s;">
           <h3 style="color: #5cb85c; margin-top: 0;">Standard Consumer Profile</h3>
           <p style="color: #777; font-size: 14px; min-height: 40px;">Grants public lookup access only. Restricts database modifications (POST, PUT, DELETE will return 403 Forbidden).</p>
-          <a href="/api/auth/github?role=user" style="display: block; padding: 12px; background: #5cb85c; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px;">
-            Login as Common User
+          <a href="https://artcatalog-david-1.onrender.com/api-docs/" style="display: block; padding: 12px; background: #5cb85c; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px;">
+            Enter as Common User
           </a>
         </div>
       </div>
@@ -197,14 +193,9 @@ async function startServer() {
       console.log(`ArtCatalog API running on http://localhost:${PORT}`);
       console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
     });
-  } catch (err) {
-    console.error("Failed to initialize the database:", err);
-    process.exit(1);
+  } catch (error) {
+    console.error("Database initialization failed:", error);
   }
 }
 
-if (require.main === module) {
-  startServer();
-}
-
-module.exports = app;
+startServer();
