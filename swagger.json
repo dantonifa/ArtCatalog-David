@@ -5,16 +5,16 @@
     "description": "CSE 341 Final Project - Art Catalog REST API under OpenAPI 3.0 specification guidelines.",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://localhost:3000/api",
-      "description": "Local Development Server"
-    },
-    {
-      "url": "https://onrender.com",
-      "description": "Production Web Server (Render)"
-    }
-  ],
+  servers: [
+  {
+    url: "http://localhost:3000/api",
+    description: "Local Development Server"
+  },
+  {
+    url: "https://artcatalog-david-1.onrender.com/api",
+    description: "Production Server"
+  }
+]
   "tags": [
     {
       "name": "Auth"
