@@ -5,16 +5,16 @@
     "description": "CSE 341 Final Project - Art Catalog REST API under OpenAPI 3.0 specification guidelines.",
     "version": "1.0.0"
   },
-  servers: [
-  {
-    url: "http://localhost:3000/api",
-    description: "Local Development Server"
-  },
-  {
-    url: "https://artcatalog-david-1.onrender.com/api",
-    description: "Production Server"
-  }
-]
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://artcatalog-david-1.onrender.com/api",
+      "description": "Production Server"
+    }
+  ],
   "tags": [
     {
       "name": "Auth"
@@ -38,9 +38,7 @@
   "paths": {
     "/auth/me": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "description": "",
         "responses": {
           "200": {
@@ -54,9 +52,7 @@
     },
     "/artists/": {
       "get": {
-        "tags": [
-          "Artists"
-        ],
+        "tags": ["Artists"],
         "description": "",
         "parameters": [
           {
@@ -74,9 +70,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Artists"
-        ],
+        "tags": ["Artists"],
         "description": "",
         "responses": {
           "201": {
@@ -125,9 +119,7 @@
     },
     "/artists/{id}": {
       "get": {
-        "tags": [
-          "Artists"
-        ],
+        "tags": ["Artists"],
         "description": "",
         "parameters": [
           {
@@ -152,9 +144,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Artists"
-        ],
+        "tags": ["Artists"],
         "description": "",
         "parameters": [
           {
@@ -223,9 +213,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Artists"
-        ],
+        "tags": ["Artists"],
         "description": "",
         "parameters": [
           {
@@ -261,9 +249,7 @@
     },
     "/artists/{id}/artworks": {
       "get": {
-        "tags": [
-          "Artists"
-        ],
+        "tags": ["Artists"],
         "description": "",
         "parameters": [
           {
@@ -290,9 +276,7 @@
     },
     "/artworks/": {
       "get": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "parameters": [
           {
@@ -332,9 +316,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "responses": {
           "201": {
@@ -389,9 +371,7 @@
     },
     "/artworks/search": {
       "get": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "parameters": [
           {
@@ -442,9 +422,7 @@
     },
     "/artworks/{id}": {
       "get": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "parameters": [
           {
@@ -469,9 +447,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "parameters": [
           {
@@ -515,7 +491,7 @@
                 },
                 "description": {
                   "type": "string",
-                  "example": "One of a series of sunflower still lifes."
+                  "example": "One of a series of sunflower still lives."
                 },
                 "file": {
                   "type": "string",
@@ -548,9 +524,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "parameters": [
           {
@@ -583,9 +557,7 @@
     },
     "/artworks/{id}/keywords": {
       "get": {
-        "tags": [
-          "Artworks"
-        ],
+        "tags": ["Artworks"],
         "description": "",
         "parameters": [
           {
@@ -612,9 +584,7 @@
     },
     "/keywords/": {
       "get": {
-        "tags": [
-          "Keywords"
-        ],
+        "tags": ["Keywords"],
         "description": "",
         "responses": {
           "200": {
@@ -623,9 +593,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Keywords"
-        ],
+        "tags": ["Keywords"],
         "description": "",
         "responses": {
           "201": {
@@ -659,9 +627,7 @@
     },
     "/keywords/{id}": {
       "get": {
-        "tags": [
-          "Keywords"
-        ],
+        "tags": ["Keywords"],
         "description": "",
         "parameters": [
           {
@@ -686,9 +652,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Keywords"
-        ],
+        "tags": ["Keywords"],
         "description": "",
         "parameters": [
           {
@@ -736,9 +700,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Keywords"
-        ],
+        "tags": ["Keywords"],
         "description": "",
         "parameters": [
           {
@@ -771,9 +733,7 @@
     },
     "/keywords/{id}/artworks": {
       "get": {
-        "tags": [
-          "Keywords"
-        ],
+        "tags": ["Keywords"],
         "description": "",
         "parameters": [
           {
@@ -800,9 +760,7 @@
     },
     "/artworkKeywords/": {
       "get": {
-        "tags": [
-          "Artwork-Keywords"
-        ],
+        "tags": ["Artwork-Keywords"],
         "description": "",
         "parameters": [
           {
@@ -827,9 +785,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Artwork-Keywords"
-        ],
+        "tags": ["Artwork-Keywords"],
         "description": "",
         "responses": {
           "201": {
@@ -866,9 +822,7 @@
     },
     "/artworkKeywords/{id}": {
       "get": {
-        "tags": [
-          "Artwork-Keywords"
-        ],
+        "tags": ["Artwork-Keywords"],
         "description": "",
         "parameters": [
           {
@@ -893,9 +847,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Artwork-Keywords"
-        ],
+        "tags": ["Artwork-Keywords"],
         "description": "",
         "parameters": [
           {
@@ -947,9 +899,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Artwork-Keywords"
-        ],
+        "tags": ["Artwork-Keywords"],
         "description": "",
         "parameters": [
           {
@@ -982,9 +932,7 @@
     },
     "/users/": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "description": "",
         "responses": {
           "200": {
@@ -1001,9 +949,7 @@
     },
     "/users/{id}": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "description": "",
         "parameters": [
           {
@@ -1034,9 +980,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "description": "",
         "parameters": [
           {
@@ -1081,9 +1025,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "description": "",
         "parameters": [
           {
