@@ -38,8 +38,9 @@ if (
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL: process.env.GITHUB_CALLBACK_URL,
+        passReqToCallback: true, // 👈 MANDATORY: Exposes req down into the strategy verify function below
       },
-      async (accessToken, refreshToken, profile, done) => {
+      async (req, accessToken, refreshToken, profile, done) => {
         try {
           const db = getDatabase();
           const oauthId = String(profile.id);
@@ -54,7 +55,7 @@ if (
               oauthId,
               displayName: profile.displayName || profile.username || "User",
               email: profile.emails?.[0]?.value || null,
-              role: "user", // Baseline placeholder; handled dynamically in routes/auth.js
+              role: "user", // Baseline fallback initialization
               createdAt: new Date(),
               lastLoginAt: new Date(),
             };
@@ -74,7 +75,11 @@ if (
             user.lastLoginAt = new Date();
           }
 
-          // Pass the plain user entity context object smoothly to the callback route pipeline
+          // 👈 DYNAMIC CAPTURE: Safely extract state context before Passport cleans the query string
+          const finalRole = req.query.state === "admin" ? "admin" : "user";
+          user.role = finalRole;
+
+          // Pass the complete user entity context object smoothly to the callback route pipeline
           return done(null, user);
         } catch (err) {
           return done(err, null);
