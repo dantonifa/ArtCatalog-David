@@ -4,21 +4,21 @@
 // Documents store "createdBy" (id of the user that created them) so routes
 // can check ownership.
 
-const { ObjectId } = require('mongodb');
-const { getDatabase } = require('../data/database');
+const { ObjectId } = require("mongodb");
+const { getDatabase } = require("../data/database");
 
-const COLLECTION = 'artworks';
+const COLLECTION = "artworks";
 // Fields a client may update (whitelist to avoid mass assignment).
 const ALLOWED_FIELDS = [
-  'title',
-  'year',
-  'period',
-  'type',
-  'medium',
-  'dimensions',
-  'description',
-  'file',
-  'artistId',
+  "title",
+  "year",
+  "period",
+  "type",
+  "medium",
+  "dimensions",
+  "description",
+  "file",
+  "artistId",
 ];
 
 /** Returns every artwork; supports ?period=, ?type=, ?year=, ?artistId= filters. */
@@ -26,11 +26,21 @@ async function getAllArtworks(req, res, next) {
   try {
     const db = getDatabase();
     const query = {};
+
     if (req.query.period) query.period = req.query.period;
     if (req.query.type) query.type = req.query.type;
     if (req.query.year) query.year = Number(req.query.year);
     if (req.query.artistId) query.artistId = new ObjectId(req.query.artistId);
+
     const artworks = await db.collection(COLLECTION).find(query).toArray();
+
+    // Force a 500 error for testing in Swagger
+    if (req.query.error === "500") {
+      const err = new Error("Internal Server Error test");
+      err.status = 500;
+      throw err;
+    }
+
     res.status(200).json(artworks);
   } catch (err) {
     next(err);
@@ -61,11 +71,11 @@ async function createArtwork(req, res, next) {
   try {
     const db = getDatabase();
     const artistId = new ObjectId(req.body.artistId);
-    const artist = await db.collection('artists').findOne({ _id: artistId });
+    const artist = await db.collection("artists").findOne({ _id: artistId });
     if (!artist) {
       return res
         .status(400)
-        .json({ message: 'artistId does not reference an existing artist' });
+        .json({ message: "artistId does not reference an existing artist" });
     }
     const artwork = {
       title: req.body.title,
@@ -81,7 +91,9 @@ async function createArtwork(req, res, next) {
       createdAt: new Date(),
     };
     const result = await db.collection(COLLECTION).insertOne(artwork);
-    const created = await db.collection(COLLECTION).findOne({ _id: result.insertedId });
+    const created = await db
+      .collection(COLLECTION)
+      .findOne({ _id: result.insertedId });
     res.status(201).json(created);
   } catch (err) {
     next(err);
@@ -97,25 +109,28 @@ async function updateArtwork(req, res, next) {
       if (req.body[field] !== undefined) {
         // artistId must be converted back into an ObjectId for the DB.
         updatedFields[field] =
-          field === 'artistId' ? new ObjectId(req.body[field]) : req.body[field];
+          field === "artistId"
+            ? new ObjectId(req.body[field])
+            : req.body[field];
       }
     });
     // Keep the same invariant as createArtwork: artistId must reference an
     // existing artist.
     if (updatedFields.artistId !== undefined) {
-      const artist = await db.collection('artists').findOne({ _id: updatedFields.artistId });
+      const artist = await db
+        .collection("artists")
+        .findOne({ _id: updatedFields.artistId });
       if (!artist) {
         return res
           .status(400)
-          .json({ message: 'artistId does not reference an existing artist' });
+          .json({ message: "artistId does not reference an existing artist" });
       }
     }
-    const result = await db.collection(COLLECTION).updateOne(
-      { _id: new ObjectId(req.params.id) },
-      { $set: updatedFields }
-    );
+    const result = await db
+      .collection(COLLECTION)
+      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: updatedFields });
     if (result.matchedCount === 0) {
-      return res.status(404).json({ message: 'Artwork not found' });
+      return res.status(404).json({ message: "Artwork not found" });
     }
     const updated = await db.collection(COLLECTION).findOne({
       _id: new ObjectId(req.params.id),
@@ -136,10 +151,10 @@ async function deleteArtwork(req, res, next) {
     const id = new ObjectId(req.params.id);
     const result = await db.collection(COLLECTION).deleteOne({ _id: id });
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: 'Artwork not found' });
+      return res.status(404).json({ message: "Artwork not found" });
     }
     // Remove the links so no database record points to a deleted artwork.
-    await db.collection('artwork_keywords').deleteMany({ artworkId: id });
+    await db.collection("artwork_keywords").deleteMany({ artworkId: id });
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -156,20 +171,24 @@ async function searchArtworks(req, res, next) {
     const db = getDatabase();
     const query = {};
     if (req.query.q) {
-      query.title = { $regex: req.query.q, $options: 'i' };
+      query.title = { $regex: req.query.q, $options: "i" };
     }
     if (req.query.period) query.period = req.query.period;
     if (req.query.type) query.type = req.query.type;
     if (req.query.year) {
       const year = Number(req.query.year);
       if (!Number.isInteger(year) || year < 1) {
-        return res.status(400).json({ message: 'year must be a positive integer' });
+        return res
+          .status(400)
+          .json({ message: "year must be a positive integer" });
       }
       query.year = year;
     }
     if (req.query.artistId) {
       if (!ObjectId.isValid(req.query.artistId)) {
-        return res.status(400).json({ message: 'artistId must be a valid ObjectId' });
+        return res
+          .status(400)
+          .json({ message: "artistId must be a valid ObjectId" });
       }
       query.artistId = new ObjectId(req.query.artistId);
     }
@@ -189,17 +208,20 @@ async function getArtworkKeywords(req, res, next) {
   try {
     const db = getDatabase();
     const id = new ObjectId(req.params.id);
-    const artwork = await db.collection('artworks').findOne({ _id: id });
+    const artwork = await db.collection("artworks").findOne({ _id: id });
     if (!artwork) {
-      return res.status(404).json({ message: 'Artwork not found' });
+      return res.status(404).json({ message: "Artwork not found" });
     }
-    const links = await db.collection('artwork_keywords').find({ artworkId: id }).toArray();
+    const links = await db
+      .collection("artwork_keywords")
+      .find({ artworkId: id })
+      .toArray();
     const keywordIds = links.map((link) => link.keywordId);
     if (keywordIds.length === 0) {
       return res.status(200).json([]);
     }
     const keywords = await db
-      .collection('keywords')
+      .collection("keywords")
       .find({ _id: { $in: keywordIds } })
       .toArray();
     res.status(200).json(keywords);

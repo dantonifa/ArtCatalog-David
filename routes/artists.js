@@ -1,64 +1,55 @@
 // Route definitions for the artists resource.
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const artistsController = require('../controllers/artists');
-const { isAuthenticated, isOwnerOrAdmin } = require('../middleware/auth');
+const artistsController = require("../controllers/artists");
+const { isAuthenticated, isOwnerOrAdmin } = require("../middleware/auth");
 const {
   artistRules,
   validate,
   isValidObjectId,
-} = require('../middleware/validation');
+} = require("../middleware/validation");
 
 // Public: list all artists (optional ?country= filter).
-router.get('/', artistsController.getAllArtists);
+router.get("/", artistsController.getAllArtists);
 
 // Public: get a single artist.
-router.get('/:id', isValidObjectId, artistsController.getArtistById);
+router.get("/:id", isValidObjectId, artistsController.getArtistById);
 
 // Public: all artworks by this artist.
-router.get('/:id/artworks', isValidObjectId, artistsController.getArtistArtworks);
+router.get(
+  "/:id/artworks",
+  isValidObjectId,
+  artistsController.getArtistArtworks,
+);
 
 // Protected: create an artist.
 router.post(
-  '/',
+  "/",
   isAuthenticated,
   artistRules(),
   validate,
-  artistsController.createArtist
+  artistsController.createArtist,
 );
 
 // Owner or admin: update an artist.
 router.put(
-  '/:id',
-  /* #swagger.parameters['body'] = {
-      in: 'body',
-      required: true,
-      schema: {
-          firstName: "Pablo",
-          middleName: "",
-          lastName: "Picasso",
-          birthDate: "1904-02-02",
-          deathDate: "1973-03-03",
-          country: "Spain",
-          locality: "n"
-      }
-  } */
+  "/:id",
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('artists'),
+  isOwnerOrAdmin("artists"),
   artistRules(),
   validate,
-  artistsController.updateArtist
+  artistsController.updateArtist,
 );
 
 // Owner or admin: delete an artist (409 if it still has artworks).
 router.delete(
-  '/:id',
+  "/:id",
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('artists'),
-  artistsController.deleteArtist
+  isOwnerOrAdmin("artists"),
+  artistsController.deleteArtist,
 );
 
 module.exports = router;
