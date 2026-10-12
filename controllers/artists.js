@@ -71,7 +71,6 @@ const createArtist = async (req, res, next) => {
     if (response.acknowledged) {
       res.status(201).json({
         message: "Artist created successfully",
-        insertedId: response.insertedId,
       });
     } else {
       throw new Error("Failed to create artist");
