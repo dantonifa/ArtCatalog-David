@@ -47,6 +47,13 @@ const getArtistById = async (req, res, next) => {
 
 const createArtist = async (req, res, next) => {
   try {
+    // Temporary 500 test for Swagger
+    if (req.body.test500 === true) {
+      const err = new Error("Intentional 500 error for testing");
+      err.status = 500;
+      throw err;
+    }
+
     const artist = {
       name: req.body.name,
       birthYear: req.body.birthYear,
