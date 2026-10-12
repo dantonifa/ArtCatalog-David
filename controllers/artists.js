@@ -56,10 +56,11 @@ const createArtist = async (req, res, next) => {
       firstName: req.body.firstName,
       middleName: req.body.middleName,
       lastName: req.body.lastName,
-      birthDate: req.body.birthDate,
-      deathDate: req.body.deathDate,
+      birthDate: new Date(req.body.birthDate),
+      deathDate: req.body.deathDate ? new Date(req.body.deathDate) : null,
       country: req.body.country,
       locality: req.body.locality,
+      createdAt: new Date(),
     };
 
     const response = await mongodb
