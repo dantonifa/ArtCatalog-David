@@ -1,34 +1,42 @@
 // Route definitions for the artworks resource.
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const artworksController = require('../controllers/artworks');
-const { isAuthenticated, isOwnerOrAdmin } = require('../middleware/auth');
+const artworksController = require("../controllers/artworks");
+// SE CORRIGE AQUÍ: Importamos únicamente isAdmin
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
   artworkRules,
   validate,
   isValidObjectId,
-} = require('../middleware/validation');
+} = require("../middleware/validation");
 
 // Public: list all artworks.
-router.get('/', artworksController.getAllArtworks);
+router.get("/", artworksController.getAllArtworks);
 // Public: advanced search (MUST stay before '/:id').
-router.get('/search', artworksController.searchArtworks);
+router.get("/search", artworksController.searchArtworks);
 // Public: get a single artwork.
-router.get('/:id', isValidObjectId, artworksController.getArtworkById);
+router.get("/:id", isValidObjectId, artworksController.getArtworkById);
 // Public: keywords tagged on this artwork.
-router.get('/:id/keywords', isValidObjectId, artworksController.getArtworkKeywords);
-// Protected: create an artwork.
+router.get(
+  "/:id/keywords",
+  isValidObjectId,
+  artworksController.getArtworkKeywords,
+);
+
+// Restricted: ONLY admins can create an artwork.
 router.post(
-  '/',
+  "/",
   isAuthenticated,
+  isAdmin,
   artworkRules(),
   validate,
-  artworksController.createArtwork
+  artworksController.createArtwork,
 );
-// Owner or admin: update an artwork.
+
+// Restricted: ONLY admins can update an artwork.
 router.put(
-  '/:id',
+  "/:id",
   /* #swagger.parameters['body'] = {
       in: 'body',
       required: true,
@@ -46,18 +54,19 @@ router.put(
   } */
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('artworks'),
+  isAdmin,
   artworkRules(),
   validate,
-  artworksController.updateArtwork
+  artworksController.updateArtwork,
 );
-// Owner or admin: delete an artwork.
+
+// Restricted: ONLY admins can delete an artwork.
 router.delete(
-  '/:id',
+  "/:id",
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('artworks'),
-  artworksController.deleteArtwork
+  isAdmin,
+  artworksController.deleteArtwork,
 );
 
 module.exports = router;
