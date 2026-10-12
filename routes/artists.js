@@ -1,55 +1,72 @@
-// Route definitions for the artists resource.
+// Route definitions for the artworks resource.
 
 const express = require("express");
 const router = express.Router();
-const artistsController = require("../controllers/artists");
-const { isAuthenticated, isOwnerOrAdmin } = require("../middleware/auth");
+const artworksController = require("../controllers/artworks");
+// Se cambia isOwnerOrAdmin por isAdmin para asegurar acceso exclusivo de administradores
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
-  artistRules,
+  artworkRules,
   validate,
   isValidObjectId,
 } = require("../middleware/validation");
 
-// Public: list all artists (optional ?country= filter).
-router.get("/", artistsController.getAllArtists);
-
-// Public: get a single artist.
-router.get("/:id", isValidObjectId, artistsController.getArtistById);
-
-// Public: all artworks by this artist.
+// Public: list all artworks.
+router.get("/", artworksController.getAllArtworks);
+// Public: advanced search (MUST stay before '/:id').
+router.get("/search", artworksController.searchArtworks);
+// Public: get a single artwork.
+router.get("/:id", isValidObjectId, artworksController.getArtworkById);
+// Public: keywords tagged on this artwork.
 router.get(
-  "/:id/artworks",
+  "/:id/keywords",
   isValidObjectId,
-  artistsController.getArtistArtworks,
+  artworksController.getArtworkKeywords,
 );
 
-// Protected: create an artist.
+// Restricted: ONLY admins can create an artwork.
 router.post(
   "/",
   isAuthenticated,
-  artistRules(),
+  isAdmin,
+  artworkRules(),
   validate,
-  artistsController.createArtist,
+  artworksController.createArtwork,
 );
 
-// Owner or admin: update an artist.
+// Restricted: ONLY admins can update an artwork.
 router.put(
   "/:id",
+  /* #swagger.parameters['body'] = {
+      in: 'body',
+      required: true,
+      schema: {
+          title: "Sunflowers",
+          year: 1888,
+          period: "Post-impressionism",
+          type: "Painting",
+          medium: "Oil",
+          dimensions: "92 cm x 73 cm",
+          description: "One of a series of sunflower still lifes.",
+          file: "sunflowers.jpg",
+          artistId: "6ab73b2548f485276c4cea63"
+      }
+  } */
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin("artists"),
-  artistRules(),
+  isAdmin,
+  artworkRules(),
   validate,
-  artistsController.updateArtist,
+  artworksController.updateArtwork,
 );
 
-// Owner or admin: delete an artist (409 if it still has artworks).
+// Restricted: ONLY admins can delete an artwork.
 router.delete(
   "/:id",
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin("artists"),
-  artistsController.deleteArtist,
+  isAdmin,
+  artworksController.deleteArtwork,
 );
 
 module.exports = router;
