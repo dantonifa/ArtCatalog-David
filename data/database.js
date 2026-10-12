@@ -2,7 +2,7 @@
 // Provides initDb to establish the connection and getDatabase to return the
 // active database handle to controllers.
 
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require("mongodb");
 
 let _db; // active database handle
 let _client; // underlying MongoClient (kept to allow a clean shutdown)
@@ -10,10 +10,16 @@ let _client; // underlying MongoClient (kept to allow a clean shutdown)
 // Collections used by the API and their unique indexes. MongoDB creates a
 // collection automatically on first insert, but we create them here plus the
 // unique indexes so the schema is ready before any request arrives.
-const COLLECTIONS = ['artists', 'artworks', 'keywords', 'artwork_keywords', 'users'];
+const COLLECTIONS = [
+  "artists",
+  "artworks",
+  "keywords",
+  "artwork_keywords",
+  "users",
+];
 const UNIQUE_INDEXES = [
-  { collection: 'keywords', keys: { keyword: 1 } },
-  { collection: 'artwork_keywords', keys: { artworkId: 1, keywordId: 1 } },
+  { collection: "keywords", keys: { keyword: 1 } },
+  { collection: "artwork_keywords", keys: { artworkId: 1, keywordId: 1 } },
 ];
 
 /**
@@ -23,13 +29,13 @@ const UNIQUE_INDEXES = [
  */
 async function initDb(connectionString) {
   if (_db) {
-    console.warn('Trying to init DB again!');
+    console.warn("Trying to init DB again!");
     return _db;
   }
   _client = new MongoClient(connectionString);
   await _client.connect();
-  _db = _client.db();
-  console.log('Connected to MongoDB');
+  _db = _client.db("artcatalogteam8");
+  console.log("Connected to MongoDB");
   await ensureSchema(_db);
   return _db;
 }
@@ -44,13 +50,13 @@ async function ensureSchema(db) {
     try {
       await db.createCollection(name);
     } catch (err) {
-      if (err.codeName !== 'NamespaceExists') throw err;
+      if (err.codeName !== "NamespaceExists") throw err;
     }
   }
   for (const { collection, keys } of UNIQUE_INDEXES) {
     await db.collection(collection).createIndex(keys, { unique: true });
   }
-  console.log('Database schema ready (collections and unique indexes)');
+  console.log("Database schema ready (collections and unique indexes)");
 }
 
 /**
@@ -59,7 +65,7 @@ async function ensureSchema(db) {
  */
 function getDatabase() {
   if (!_db) {
-    throw new Error('Database not initialized!');
+    throw new Error("Database not initialized!");
   }
   return _db;
 }
