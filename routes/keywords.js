@@ -1,27 +1,37 @@
 // Route definitions for the keywords resource.
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const keywordsController = require('../controllers/keywords');
-const { isAuthenticated, isOwnerOrAdmin } = require('../middleware/auth');
+const keywordsController = require("../controllers/keywords");
+// SE CORRIGE AQUÍ: Importamos únicamente isAdmin
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
   keywordRules,
   validate,
   isValidObjectId,
-} = require('../middleware/validation');
+} = require("../middleware/validation");
 
-router.get('/', keywordsController.getAllKeywords);
-router.get('/:id', isValidObjectId, keywordsController.getKeywordById);
-router.get('/:id/artworks', isValidObjectId, keywordsController.getKeywordArtworks);
+router.get("/", keywordsController.getAllKeywords);
+router.get("/:id", isValidObjectId, keywordsController.getKeywordById);
+router.get(
+  "/:id/artworks",
+  isValidObjectId,
+  keywordsController.getKeywordArtworks,
+);
+
+// Restricted: ONLY admins can create a keyword.
 router.post(
-  '/',
+  "/",
   isAuthenticated,
+  isAdmin,
   keywordRules(),
   validate,
-  keywordsController.createKeyword
+  keywordsController.createKeyword,
 );
+
+// Restricted: ONLY admins can update a keyword.
 router.put(
-  '/:id',
+  "/:id",
   /* #swagger.parameters['body'] = {
       in: 'body',
       required: true,
@@ -31,17 +41,19 @@ router.put(
   } */
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('keywords'),
+  isAdmin,
   keywordRules(),
   validate,
-  keywordsController.updateKeyword
+  keywordsController.updateKeyword,
 );
+
+// Restricted: ONLY admins can delete a keyword.
 router.delete(
-  '/:id',
+  "/:id",
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('keywords'),
-  keywordsController.deleteKeyword
+  isAdmin,
+  keywordsController.deleteKeyword,
 );
 
 module.exports = router;
