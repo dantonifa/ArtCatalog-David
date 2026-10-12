@@ -5,7 +5,6 @@ const getAllArtists = async (req, res, next) => {
   try {
     const artists = await mongodb
       .getDatabase()
-      .db()
       .collection("artists")
       .find()
       .toArray();
@@ -29,7 +28,6 @@ const getArtistById = async (req, res, next) => {
 
     const result = await mongodb
       .getDatabase()
-      .db()
       .collection("artists")
       .findOne({ _id: artistId });
 
@@ -66,7 +64,6 @@ const createArtist = async (req, res, next) => {
 
     const response = await mongodb
       .getDatabase()
-      .db()
       .collection("artists")
       .insertOne(artist);
 
@@ -97,7 +94,6 @@ const updateArtist = async (req, res, next) => {
 
     const response = await mongodb
       .getDatabase()
-      .db()
       .collection("artists")
       .replaceOne({ _id: artistId }, artist);
 
@@ -117,7 +113,6 @@ const deleteArtist = async (req, res, next) => {
 
     const response = await mongodb
       .getDatabase()
-      .db()
       .collection("artists")
       .deleteOne({ _id: artistId });
 
@@ -137,7 +132,6 @@ const getArtistArtworks = async (req, res, next) => {
 
     const artworks = await mongodb
       .getDatabase()
-      .db()
       .collection("artworks")
       .find({ artistId })
       .toArray();
