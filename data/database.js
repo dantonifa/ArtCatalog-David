@@ -33,12 +33,11 @@ async function initDb(connectionString) {
     return _db;
   }
   _client = new MongoClient(connectionString);
-  await _client.connect();
-  _db = _client.db("artcatalogteam8");
-  console.log("Connected to MongoDB");
-  await ensureSchema(_db);
-  return _db;
-}
+await _client.connect();
+_db = _client.db("artcatalogteam8");
+console.log("Connected to MongoDB");
+await ensureSchema(_db);
+return _db;
 
 /**
  * Creates the collections and unique indexes that the API expects.
