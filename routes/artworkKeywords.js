@@ -1,26 +1,36 @@
 // Route definitions for the artwork_keywords resource.
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const artworkKeywordsController = require('../controllers/artworkKeywords');
-const { isAuthenticated, isOwnerOrAdmin } = require('../middleware/auth');
+const artworkKeywordsController = require("../controllers/artworkKeywords");
+// SE CORRIGE AQUÍ: Importamos únicamente isAdmin
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
   artworkKeywordRules,
   validate,
   isValidObjectId,
-} = require('../middleware/validation');
+} = require("../middleware/validation");
 
-router.get('/', artworkKeywordsController.getAllArtworkKeywords);
-router.get('/:id', isValidObjectId, artworkKeywordsController.getArtworkKeywordById);
+router.get("/", artworkKeywordsController.getAllArtworkKeywords);
+router.get(
+  "/:id",
+  isValidObjectId,
+  artworkKeywordsController.getArtworkKeywordById,
+);
+
+// Restricted: ONLY admins can build associations.
 router.post(
-  '/',
+  "/",
   isAuthenticated,
+  isAdmin,
   artworkKeywordRules(),
   validate,
-  artworkKeywordsController.createArtworkKeyword
+  artworkKeywordsController.createArtworkKeyword,
 );
+
+// Restricted: ONLY admins can update associations.
 router.put(
-  '/:id',
+  "/:id",
   /* #swagger.parameters['body'] = {
       in: 'body',
       required: true,
@@ -31,17 +41,19 @@ router.put(
   } */
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('artwork_keywords'),
+  isAdmin,
   artworkKeywordRules(),
   validate,
-  artworkKeywordsController.updateArtworkKeyword
+  artworkKeywordsController.updateArtworkKeyword,
 );
+
+// Restricted: ONLY admins can delete associations.
 router.delete(
-  '/:id',
+  "/:id",
   isValidObjectId,
   isAuthenticated,
-  isOwnerOrAdmin('artwork_keywords'),
-  artworkKeywordsController.deleteArtworkKeyword
+  isAdmin,
+  artworkKeywordsController.deleteArtworkKeyword,
 );
 
 module.exports = router;
