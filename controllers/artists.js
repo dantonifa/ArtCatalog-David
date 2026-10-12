@@ -55,10 +55,13 @@ const createArtist = async (req, res, next) => {
     }
 
     const artist = {
-      name: req.body.name,
-      birthYear: req.body.birthYear,
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      birthDate: req.body.birthDate,
+      deathDate: req.body.deathDate,
       country: req.body.country,
-      style: req.body.style,
+      locality: req.body.locality,
     };
 
     const response = await mongodb
@@ -78,16 +81,18 @@ const createArtist = async (req, res, next) => {
     next(err);
   }
 };
-
 const updateArtist = async (req, res, next) => {
   try {
     const artistId = ObjectId.createFromHexString(req.params.id);
 
     const artist = {
-      name: req.body.name,
-      birthYear: req.body.birthYear,
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      birthDate: req.body.birthDate,
+      deathDate: req.body.deathDate,
       country: req.body.country,
-      style: req.body.style,
+      locality: req.body.locality,
     };
 
     const response = await mongodb
