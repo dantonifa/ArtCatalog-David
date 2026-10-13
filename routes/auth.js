@@ -4,7 +4,7 @@
 
 const express = require("express");
 const passport = require("passport");
-const authController = require("../controllers/authController");
+const authController = require("../controllers/auth"); // ✅ Correct filename
 const router = express.Router();
 
 // 1. Initial Handshake: Captures the user's role choice from the frontend query and routes them to GitHub with the choice preserved in the 'state' parameter.

@@ -18,7 +18,9 @@ function authFailure(req, res) {
 }
 
 /** Ends the session and clears the session cookie. */
-function logout(req, res, next) {
+// controllers/auth.js
+
+const logout = function (req, res, next) {
   req.logout((err) => {
     if (err) {
       return next(err);
@@ -35,7 +37,12 @@ function logout(req, res, next) {
       return res.redirect("/");
     });
   });
-}
+};
+
+module.exports = {
+  // ... other exported functions
+  logout
+};
 /**
  * Development-only login helper used until GitHub OAuth is configured.
  * Finds (or creates) a marker user ("dev" provider, role admin) and logs it
