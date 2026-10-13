@@ -11,8 +11,8 @@
       "description": "Local Development Server"
     },
     {
-      "url": "https://artcatalog-david-1.onrender.com/api",
-      "description": "Production Server"
+      "url": "https://artcatalog-david-1.onrender.com/api/",
+      "description": "Production Web Server (Render)"
     }
   ],
   "tags": [
@@ -36,27 +36,29 @@
     }
   ],
   "paths": {
-    "/auth/me": {
+    "/auth/logout": {
       "get": {
-        "tags": ["Auth"],
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logout",
+        "description": "Destroys the current server session and clears the session context.",
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
+            "description": "Successfully logged out"
           }
         }
       }
     },
     "/artists/": {
       "get": {
-        "tags": ["Artists"],
+        "tags": [
+          "Artists"
+        ],
         "description": "",
         "parameters": [
           {
-            "name": "country",
+            "name": "error",
             "in": "query",
             "schema": {
               "type": "string"
@@ -70,7 +72,9 @@
         }
       },
       "post": {
-        "tags": ["Artists"],
+        "tags": [
+          "Artists"
+        ],
         "description": "",
         "responses": {
           "201": {
@@ -82,8 +86,102 @@
           "401": {
             "description": "Unauthorized"
           },
-          "500": {
-            "description": "Internal Server Error"
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "test500": {
+                    "example": "any"
+                  },
+                  "firstName": {
+                    "example": "any"
+                  },
+                  "middleName": {
+                    "example": "any"
+                  },
+                  "lastName": {
+                    "example": "any"
+                  },
+                  "birthDate": {
+                    "example": "any"
+                  },
+                  "deathDate": {
+                    "example": "any"
+                  },
+                  "country": {
+                    "example": "any"
+                  },
+                  "locality": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/artists/{id}": {
+      "get": {
+        "tags": [
+          "Artists"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Artists"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "requestBody": {
@@ -118,108 +216,11 @@
             }
           }
         }
-      }
-    },
-    "/artists/{id}": {
-      "get": {
-        "tags": ["Artists"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "put": {
-        "tags": ["Artists"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "firstName": {
-                  "type": "string",
-                  "example": "Pablo"
-                },
-                "middleName": {
-                  "type": "string",
-                  "example": ""
-                },
-                "lastName": {
-                  "type": "string",
-                  "example": "Picasso"
-                },
-                "birthDate": {
-                  "type": "string",
-                  "example": "1904-02-02"
-                },
-                "deathDate": {
-                  "type": "string",
-                  "example": "1973-03-03"
-                },
-                "country": {
-                  "type": "string",
-                  "example": "Spain"
-                },
-                "locality": {
-                  "type": "string",
-                  "example": "n"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
       },
       "delete": {
-        "tags": ["Artists"],
+        "tags": [
+          "Artists"
+        ],
         "description": "",
         "parameters": [
           {
@@ -243,52 +244,15 @@
           },
           "403": {
             "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "409": {
-            "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/artists/{id}/artworks": {
-      "get": {
-        "tags": ["Artists"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/artworks/": {
       "get": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "parameters": [
           {
@@ -310,11 +274,17 @@
             "in": "query",
             "schema": {
               "type": "string"
-            },
-            "type": "integer"
+            }
           },
           {
             "name": "artistId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
             "in": "query",
             "schema": {
               "type": "string"
@@ -328,7 +298,9 @@
         }
       },
       "post": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "responses": {
           "201": {
@@ -340,8 +312,8 @@
           "401": {
             "description": "Unauthorized"
           },
-          "500": {
-            "description": "Internal Server Error"
+          "403": {
+            "description": "Forbidden"
           }
         },
         "requestBody": {
@@ -386,7 +358,9 @@
     },
     "/artworks/search": {
       "get": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "parameters": [
           {
@@ -437,7 +411,9 @@
     },
     "/artworks/{id}": {
       "get": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "parameters": [
           {
@@ -458,14 +434,13 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "parameters": [
           {
@@ -509,7 +484,7 @@
                 },
                 "description": {
                   "type": "string",
-                  "example": "One of a series of sunflower still lives."
+                  "example": "One of a series of sunflower still lifes."
                 },
                 "file": {
                   "type": "string",
@@ -542,7 +517,9 @@
         }
       },
       "delete": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "parameters": [
           {
@@ -569,16 +546,15 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/artworks/{id}/keywords": {
       "get": {
-        "tags": ["Artworks"],
+        "tags": [
+          "Artworks"
+        ],
         "description": "",
         "parameters": [
           {
@@ -599,16 +575,15 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/keywords/": {
       "get": {
-        "tags": ["Keywords"],
+        "tags": [
+          "Keywords"
+        ],
         "description": "",
         "responses": {
           "200": {
@@ -617,7 +592,9 @@
         }
       },
       "post": {
-        "tags": ["Keywords"],
+        "tags": [
+          "Keywords"
+        ],
         "description": "",
         "responses": {
           "201": {
@@ -629,11 +606,11 @@
           "401": {
             "description": "Unauthorized"
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "409": {
             "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         },
         "requestBody": {
@@ -654,7 +631,9 @@
     },
     "/keywords/{id}": {
       "get": {
-        "tags": ["Keywords"],
+        "tags": [
+          "Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -675,14 +654,13 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "tags": ["Keywords"],
+        "tags": [
+          "Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -726,14 +704,13 @@
           },
           "409": {
             "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "delete": {
-        "tags": ["Keywords"],
+        "tags": [
+          "Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -760,16 +737,15 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/keywords/{id}/artworks": {
       "get": {
-        "tags": ["Keywords"],
+        "tags": [
+          "Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -790,16 +766,15 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/artworkKeywords/": {
       "get": {
-        "tags": ["Artwork-Keywords"],
+        "tags": [
+          "Artwork-Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -824,7 +799,9 @@
         }
       },
       "post": {
-        "tags": ["Artwork-Keywords"],
+        "tags": [
+          "Artwork-Keywords"
+        ],
         "description": "",
         "responses": {
           "201": {
@@ -836,11 +813,11 @@
           "401": {
             "description": "Unauthorized"
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "409": {
             "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         },
         "requestBody": {
@@ -864,7 +841,9 @@
     },
     "/artworkKeywords/{id}": {
       "get": {
-        "tags": ["Artwork-Keywords"],
+        "tags": [
+          "Artwork-Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -885,14 +864,13 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "tags": ["Artwork-Keywords"],
+        "tags": [
+          "Artwork-Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -940,14 +918,13 @@
           },
           "409": {
             "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "delete": {
-        "tags": ["Artwork-Keywords"],
+        "tags": [
+          "Artwork-Keywords"
+        ],
         "description": "",
         "parameters": [
           {
@@ -974,16 +951,15 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/users/": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "",
         "responses": {
           "200": {
@@ -994,16 +970,15 @@
           },
           "403": {
             "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
     "/users/{id}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1030,14 +1005,13 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1046,20 +1020,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "role": {
-                  "type": "string",
-                  "example": "admin"
-                }
-              }
             }
           }
         ],
@@ -1078,14 +1038,13 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1112,9 +1071,6 @@
           },
           "404": {
             "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
