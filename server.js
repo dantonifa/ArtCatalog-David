@@ -1,5 +1,8 @@
 // server.js - Main entry point for the ArtCatalog application
 require("dotenv").config();
+const authRoutes = require("./routes/auth");
+const artistRoutes = require("./routes/artists");
+const artworkRoutes = require("./routes/artworks");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
