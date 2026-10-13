@@ -1,57 +1,43 @@
-// Route definitions for the artworks resource.
-
+//Routes/artists.js - Route definitions for the artists resource.
 const express = require("express");
 const router = express.Router();
-const artworksController = require("../controllers/artworks");
-// `isOwnerOrAdmin` is replaced with `isAdmin` to ensure exclusive access for administrators.
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
-  artworkRules,
   validate,
   isValidObjectId,
 } = require("../middleware/validation");
 
-// Public: list all artworks.
-router.get("/", artworksController.getAllArtworks);
-// Public: advanced search (MUST stay before '/:id').
-router.get("/search", artworksController.searchArtworks);
-// Public: get a single artwork.
-router.get("/:id", isValidObjectId, artworksController.getArtworkById);
-// Public: keywords tagged on this artwork.
-router.get(
-  "/:id/keywords",
-  isValidObjectId,
-  artworksController.getArtworkKeywords,
-);
+const artistsController = require("../controllers/artists");
 
-// Restricted: ONLY admins can create an artwork.
+// Public: list all artists.
+router.get("/", artistsController.getAllArtists);
+// Public: get a single artist.
+router.get("/:id", isValidObjectId, artistsController.getArtistById);
+// Restricted: ONLY admins can create an artist.
 router.post(
   "/",
   isAuthenticated,
   isAdmin,
-  artworkRules(),
   validate,
-  artworksController.createArtwork,
+  artistsController.createArtist,
 );
-
-// Restricted: ONLY admins can update an artwork.
+// Restricted: ONLY admins can update an artist.
 router.put(
   "/:id",
   isValidObjectId,
   isAuthenticated,
   isAdmin,
-  artworkRules(),
   validate,
-  artworksController.updateArtwork,
+  artistsController.updateArtist,
 );
-
-// Restricted: ONLY admins can delete an artwork.
+// Restricted: ONLY admins can delete an artist.
 router.delete(
   "/:id",
   isValidObjectId,
   isAuthenticated,
   isAdmin,
-  artworksController.deleteArtwork,
+  artistsController.deleteArtist,
 );
+
 
 module.exports = router;

@@ -83,7 +83,6 @@ const swaggerUiOptions = {
     .auth-container .wrapper:has([for*="client_secret"]),
     .auth-container div:has(> label[for="client_secret"]) {
       display: none !important;
-      visibility: hidden !important;
       height: 0 !important;
       padding: 0 !important;
       margin: 0 !important;
