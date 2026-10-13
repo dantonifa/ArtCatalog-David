@@ -131,9 +131,7 @@ app.get("/", (req, res) => {
           Open Swagger API Workspace
         </a>
         <br/>
-        <a href="/api/auth/logout" style="display: inline-block; padding: 8px 16px; background: #f0ad4e; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500;">
-          Log Out / Clear Session Context
-        </a>
+        <a class="btn" href="/api/auth/logout">Logout</a>
       </div>
     `);
   } else {
