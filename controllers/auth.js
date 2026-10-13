@@ -20,19 +20,17 @@ function authFailure(req, res) {
 /** Ends the session and clears the session cookie. */
 // controllers/auth.js
 
-const logout = function (req, res, next) {
+const logout = (req, res, next) => {
   req.logout((err) => {
     if (err) {
       return next(err);
     }
 
-    // Destroy the express session completely
     req.session.destroy((sessionErr) => {
       if (sessionErr) {
-        console.error("Error destroying session:", sessionErr);
+        return next(sessionErr);
       }
 
-      // Clear the session cookie and redirect back to the homepage
       res.clearCookie("connect.sid");
       return res.redirect("/");
     });
@@ -41,7 +39,7 @@ const logout = function (req, res, next) {
 
 module.exports = {
   // ... other exported functions
-  logout
+  logout,
 };
 /**
  * Development-only login helper used until GitHub OAuth is configured.
