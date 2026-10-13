@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const artworksController = require("../controllers/artworks");
-// Se cambia isOwnerOrAdmin por isAdmin para asegurar acceso exclusivo de administradores
+// `isOwnerOrAdmin` is replaced with `isAdmin` to ensure exclusive access for administrators.
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
   artworkRules,
@@ -37,21 +37,6 @@ router.post(
 // Restricted: ONLY admins can update an artwork.
 router.put(
   "/:id",
-  /* #swagger.parameters['body'] = {
-      in: 'body',
-      required: true,
-      schema: {
-          title: "Sunflowers",
-          year: 1888,
-          period: "Post-impressionism",
-          type: "Painting",
-          medium: "Oil",
-          dimensions: "92 cm x 73 cm",
-          description: "One of a series of sunflower still lifes.",
-          file: "sunflowers.jpg",
-          artistId: "6ab73b2548f485276c4cea63"
-      }
-  } */
   isValidObjectId,
   isAuthenticated,
   isAdmin,

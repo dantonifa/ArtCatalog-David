@@ -60,24 +60,12 @@ if (process.env.NODE_ENV !== "test" && process.env.SESSION_SECRET) {
   app.use(passport.initialize());
   app.use(passport.session());
 }
-
-/*
-// ---- Development Security Bypass ----
-// COMMENTED OUT FOR DYNAMIC ROLE SELECTION DISCOVERY TESTING:
-// Un-comment this block ONLY if you need to force-bypass the login buttons entirely during debugging.
-if (process.env.NODE_ENV !== "production") {
-  app.use((req, res, next) => {
-    req.user = {
-      githubId: "117913289",
-      displayName: "David (Dev Admin)",
-      role: "admin",
-    };
-    req.isAuthenticated = () => true;
-    next();
-  });
-}
-*/
-
+// ==========================================
+// ====== FEATURE ROUTES =====================
+// ==========================================
+app.use("/api/auth", authRoutes);
+app.use("/api/artists", artistRoutes);
+app.use("/api/artworks", artworkRoutes);
 // ---- Swagger UI Native OpenAPI 3.0 Authorization UI Setup ----
 const swaggerUiOptions = {
   swaggerOptions: {
