@@ -4,6 +4,7 @@
 
 const express = require("express");
 const passport = require("passport");
+const authController = require("../controllers/authController");
 const router = express.Router();
 
 // 1. Initial Handshake: Captures the user's role choice from the frontend query and routes them to GitHub with the choice preserved in the 'state' parameter.
@@ -53,28 +54,13 @@ router.get(
   },
 );
 
-// 3. Logout Gateway: Destroys the active Passport identity matrix, flushes the MongoDB Atlas session row store, and wipes browser tracking tokens.
-router.get("/logout", (req, res, next) => {
-  // Execute Passport's asynchronous session removal handler function
-  req.logout((err) => {
-    if (err) {
-      return next(err);
-    }
-
-    // Explicitly drop session references cached within the cloud database cluster
-    req.session.destroy((destroyErr) => {
-      if (destroyErr) {
-        return next(destroyErr);
-      }
-
-      // Wipe the explicit session tracking cookie signature token from the browser instance
-      res.clearCookie("connect.sid");
-
-      // Return the disconnected client back to the role selection welcome hub landing view
-      return res.redirect("/");
-    });
-  });
-});
+// 3. Logout Endpoint: Handles the termination of the current session and cleanup of session-related data.
+/**
+ * #swagger.tags = ['Auth']
+ * #swagger.summary = "Logout"
+ * #swagger.description = "Destroys the current server session and clears session context."
+ */
+router.get("/logout", authController.logout);
 
 // Security Fallback: Gracefully handles credential validation failures or canceled authorization sequences.
 router.get("/login/failed", (req, res) => {
