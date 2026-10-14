@@ -3,7 +3,6 @@
 const express = require("express");
 const router = express.Router();
 const artworksController = require("../controllers/artworks");
-// SE CORRIGE AQUÍ: Importamos únicamente isAdmin
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
   artworkRules,
@@ -47,7 +46,7 @@ router.put(
           type: "Painting",
           medium: "Oil",
           dimensions: "92 cm x 73 cm",
-          description: "One of a series of sunflower still lifes.",
+          description: "One of a series of sunflower still lives.",
           file: "sunflowers.jpg",
           artistId: "6ab73b2548f485276c4cea63"
       }
