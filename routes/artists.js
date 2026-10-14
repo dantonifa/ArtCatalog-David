@@ -5,6 +5,8 @@ const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const {
   validate,
   isValidObjectId,
+  artistRules,
+  artworkRules,
 } = require("../middleware/validation");
 
 const artistsController = require("../controllers/artists");
@@ -18,6 +20,8 @@ router.post(
   "/",
   isAuthenticated,
   isAdmin,
+  artistRules,
+  artworkRules,
   validate,
   artistsController.createArtist,
 );
@@ -27,6 +31,8 @@ router.put(
   isValidObjectId,
   isAuthenticated,
   isAdmin,
+  artistRules,
+  artworkRules,
   validate,
   artistsController.updateArtist,
 );
@@ -38,6 +44,5 @@ router.delete(
   isAdmin,
   artistsController.deleteArtist,
 );
-
 
 module.exports = router;
