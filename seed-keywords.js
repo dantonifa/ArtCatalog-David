@@ -7,15 +7,13 @@ const client = new MongoClient(uri);
 async function seedKeywords() {
   try {
     await client.connect();
-    const db = client.db("artcatalogteam8"); // Make sure this matches your database name
+    const db = client.db("artcatalogteam8");
 
-    // 1. Fetch live documents from your collections
     const artworks = await db.collection("artworks").find({}).toArray();
     const artists = await db.collection("artists").find({}).toArray();
 
     const uniqueKeywords = new Set();
 
-    // 2. Extract descriptive property values from artworks and artists
     artworks.forEach((art) => {
       if (art.period) uniqueKeywords.add(art.period.trim().toLowerCase());
       if (art.type) uniqueKeywords.add(art.type.trim().toLowerCase());
@@ -34,52 +32,68 @@ async function seedKeywords() {
       return;
     }
 
-    // 3. Insert unique keywords into the keywords collection
+    const keywordsCollection = db.collection("keywords");
+    await keywordsCollection.deleteMany({});
+
     const keywordDocuments = Array.from(uniqueKeywords).map((word) => ({
       keyword: word,
       createdAt: new Date(),
     }));
 
-    const keywordsCollection = db.collection("keywords");
+    await keywordsCollection.insertMany(keywordDocuments);
+    console.log(`Successfully seeded keywords!`);
 
-    // Optional: clear out old data to ensure fresh mappings
-    await keywordsCollection.deleteMany({});
-    const keywordResult = await keywordsCollection.insertMany(keywordDocuments);
-    console.log(`Successfully seeded ${keywordResult.insertedCount} keywords!`);
-
-    // 4. Fetch the newly inserted keywords (with their generated _ids)
     const insertedKeywords = await keywordsCollection.find({}).toArray();
-
-    // Create a lookup map for quick access: { "post-impressionism": ObjectId(...) }
     const keywordMap = new Map();
     insertedKeywords.forEach((kw) => {
       keywordMap.set(kw.keyword, kw._id);
     });
 
-    // 5. Build and populate the artwork_keywords bridge collection
     const bridgeDocuments = [];
     artworks.forEach((art) => {
-      // Check for period mapping
+      // Map period
       if (art.period) {
-        const periodKey = art.period.trim().toLowerCase();
-        if (keywordMap.has(periodKey)) {
+        const key = art.period.trim().toLowerCase();
+        if (keywordMap.has(key)) {
           bridgeDocuments.push({
             artworkId: art._id,
-            keywordId: keywordMap.get(periodKey),
+            keywordId: keywordMap.get(key),
             createdAt: new Date(),
           });
         }
       }
-      // You can add similar checks for type/medium if your bridge table covers them too!
+      // Map type
+      if (art.type) {
+        const key = art.type.trim().toLowerCase();
+        if (keywordMap.has(key)) {
+          bridgeDocuments.push({
+            artworkId: art._id,
+            keywordId: keywordMap.get(key),
+            createdAt: new Date(),
+          });
+        }
+      }
+      // Map medium
+      if (art.medium) {
+        const key = art.medium.trim().toLowerCase();
+        if (keywordMap.has(key)) {
+          bridgeDocuments.push({
+            artworkId: art._id,
+            keywordId: keywordMap.get(key),
+            createdAt: new Date(),
+          });
+        }
+      }
     });
 
     const bridgeCollection = db.collection("artwork_keywords");
-    await bridgeCollection.deleteMany({}); // Clear old bridge mappings
+    await bridgeCollection.deleteMany({});
 
     if (bridgeDocuments.length > 0) {
-      const bridgeResult = await bridgeCollection.insertMany(bridgeDocuments);
+      // Use ordered: false to prevent duplicate entry crashes if an artwork maps multiple times
+      await bridgeCollection.insertMany(bridgeDocuments, { ordered: false });
       console.log(
-        `Successfully seeded ${bridgeResult.insertedCount} relationships into artwork_keywords!`,
+        `Successfully seeded ${bridgeDocuments.length} relationships into artwork_keywords!`,
       );
     } else {
       console.log(
